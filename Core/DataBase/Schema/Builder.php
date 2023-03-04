@@ -2,8 +2,6 @@
 
 namespace OptimMVC\Core\DataBase\Schema;
 
-use OptimMVC\Core\Config;
-use OptimMVC\Core\Database\Connection;
 use OptimMVC\Core\DataBase\DataBase;
 
 class Builder
@@ -12,18 +10,16 @@ class Builder
 
     public function __construct()
     {
-        $this->connection = new DataBase(Config::databaseConfig()['host'], Config::databaseConfig()['port'],  Config::databaseConfig()['database'], Config::databaseConfig()['username'], Config::databaseConfig()['password']);
+        $this->connection = new DataBase();
     }
 
-    public function createTable($table, $columns)
+    public function create($table, $callback): Blueprint
     {
-        $query = "CREATE TABLE IF NOT EXISTS {$table} (";
-        $columnDefinitions = array_map(function ($column) {
-            return $column->getDefinition();
-        }, $columns);
-        $query .= implode(", ", $columnDefinitions);
-        $query .= ")";
-        $this->connection->query($query);
+        $blueprint = new Blueprint($table);
+        $callback($blueprint);
+        $sql = $blueprint->toSql();
+        $this->connection->query($sql);
+        return $blueprint;
     }
 
     public function addColumn($table, $column)
@@ -38,9 +34,9 @@ class Builder
         $this->connection->query($query);
     }
 
-    public function dropTable($table)
+    public function drop($table)
     {
-        $sql = "DROP TABLE $table";
+        $sql = "DROP TABLE IF EXISTS $table";
         $this->connection->query($sql);
     }
 }

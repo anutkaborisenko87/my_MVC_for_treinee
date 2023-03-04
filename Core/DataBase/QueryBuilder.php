@@ -110,9 +110,10 @@ class QueryBuilder extends DataBase
         return (int) $count;
     }
 
-    public function table(string $table)
+    public function table(string $table): QueryBuilder
     {
         $this->table = $table;
+        return $this;
     }
 
     public function insert($data)

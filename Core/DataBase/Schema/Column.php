@@ -6,42 +6,41 @@ class Column
 {
     protected $name;
     protected $type;
-    protected $options = [];
+    protected $attributes = [];
 
-    public function __construct($name, $type, $options = [])
+    public function __construct($name, $type, $attributes = [])
     {
         $this->name = $name;
         $this->type = $type;
-        $this->options = $options;
+        $this->attributes = $attributes;
     }
 
-    public function getName()
+    public function nullable(): Column
     {
-        return $this->name;
+        $this->attributes['NULL'] = true;
+        return $this;
     }
 
-    public function setName($name)
+    public function unique()
     {
-        $this->name = $name;
+        $this->attributes['UNIQUE'] = true;
     }
 
-    public function getType()
+    public function default($value): Column
     {
-        return $this->type;
+        $this->attributes['DEFAULT'] = $value;
+        return $this;
     }
 
-    public function setType($type)
+    public function getDefinition(): string
     {
-        $this->type = $type;
-    }
-
-    public function getOptions()
-    {
-        return $this->options;
-    }
-
-    public function setOptions($options)
-    {
-        $this->options = $options;
+        $definition = "{$this->name} {$this->type}";
+        foreach ($this->attributes as $attribute => $value) {
+            $definition .= " {$attribute}";
+            if ($value !== true) {
+                $definition .= " {$value}";
+            }
+        }
+        return $definition;
     }
 }
