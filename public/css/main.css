@@ -1,0 +1,9 @@
+.sidebar {
+    float: left;
+    width: 280px;
+    height: 100vh;
+}
+
+.pointer {
+    cursor: pointer;
+}
