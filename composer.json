@@ -1,0 +1,18 @@
+{
+  "autoload": {
+    "psr-4": {
+      "OptimMVC\\": ""
+    },
+    "files": [
+      "app/helpers/helpers.php",
+      "routes/routes.php",
+      "migration.php"
+    ]
+  },
+  "require": {
+    "ext-mysqli": "*",
+    "ext-pdo": "*",
+    "vlucas/phpdotenv": "^5.5",
+    "ext-json": "*"
+  }
+}
