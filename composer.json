@@ -5,8 +5,7 @@
     },
     "files": [
       "app/helpers/helpers.php",
-      "routes/routes.php",
-      "migration.php"
+      "routes/routes.php"
     ]
   },
   "require": {
