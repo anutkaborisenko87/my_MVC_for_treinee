@@ -8,7 +8,15 @@ use OptimMVC\Core\Database\Schema\Builder;
 
 abstract class Migration
 {
+
+    /**
+     * @var Connection
+     */
     protected $connection;
+
+    /**
+     * @var Builder
+     */
     protected $schema;
 
     public function __construct()

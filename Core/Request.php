@@ -3,8 +3,20 @@
 namespace OptimMVC\Core;
 
 class Request {
+
+    /**
+     * @var mixed
+     */
     protected $method;
+
+    /**
+     * @var mixed
+     */
     protected $uri;
+
+    /**
+     * @var array
+     */
     protected $parameters;
 
     public function __construct() {
@@ -16,7 +28,6 @@ class Request {
     /**
      * @return mixed
      */
-
     public function get_method() {
         return $this->method;
     }
@@ -33,7 +44,6 @@ class Request {
      * @param string $name
      * @return mixed|null
      */
-
     public function get_parameter(string $name)
     {
         return $this->parameters[$name] ?? null;
@@ -42,7 +52,6 @@ class Request {
     /**
      * @return array
      */
-
     public function get_parameters(): array
     {
         return $this->parameters;

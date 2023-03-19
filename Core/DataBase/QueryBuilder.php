@@ -27,7 +27,7 @@ class QueryBuilder extends DataBase
 
     public function where($column, $operator, $value): QueryBuilder
     {
-        $this->where[] = "$column $operator ?";
+        $this->where[] = ['column' => $column, 'operator' => $operator, 'value' => $value];
         $this->bindParams[] = $value;
 
         return $this;
@@ -52,7 +52,11 @@ class QueryBuilder extends DataBase
         $query = "SELECT {$this->select} FROM {$this->table}";
 
         if (!empty($this->where)) {
-            $query .= ' WHERE ' . implode(' AND ', $this->where);
+            $whereClauses = [];
+            foreach ($this->where as $where) {
+                $whereClauses[] = "{$where['column']} {$where['operator']} ?";
+            }
+            $query .= ' WHERE ' . implode(' AND ', $whereClauses);
         }
 
         if (!empty($this->order)) {
@@ -68,6 +72,7 @@ class QueryBuilder extends DataBase
 
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+
     public function first()
     {
         $this->limit(1, 1);
@@ -98,16 +103,29 @@ class QueryBuilder extends DataBase
             'last_page' => $totalPages
         ];
     }
+
     public function count(): int
     {
         $query = "SELECT COUNT(*) as count FROM {$this->table}";
 
         if (!empty($this->where)) {
-            $query .= " WHERE " . implode(" AND ", $this->where);
+            $whereClauses = [];
+            foreach ($this->where as $where) {
+                $whereClauses[] = "{$where['column']} {$where['operator']} ?";
+            }
+            $query .= " WHERE " . implode(" AND ", $whereClauses);
         }
         $result = $this->query($query);
         $count = $result->fetch(PDO::FETCH_ASSOC)['count'];
-        return (int) $count;
+        return (int)$count;
+    }
+
+    public function getColumns()
+    {
+        $query = "SHOW COLUMNS FROM {$this->table}";
+        $stmt = $this->getPdo()->prepare($query);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_COLUMN);
     }
 
     public function table(string $table): QueryBuilder
@@ -125,6 +143,7 @@ class QueryBuilder extends DataBase
         $this->query($query, $values);
         return $this->lastInsertId();
     }
+
     public function lastInsertId()
     {
         return $this->getPdo()->lastInsertId();
@@ -152,17 +171,24 @@ class QueryBuilder extends DataBase
         return $this->query($query, $values)->rowCount();
     }
 
-    public function delete(): int
+    /**
+     * @return false|int
+     */
+
+    public function delete()
     {
         $query = "DELETE FROM {$this->table}";
-        if (!empty($this->wheres)) {
+        if (!empty($this->where)) {
             $query .= " WHERE ";
-            foreach ($this->wheres as $i => $where) {
+            $values = [];
+            foreach ($this->where as $i => $where) {
                 $operator = $i == 0 ? "" : "AND";
                 $query .= "{$operator} {$where['column']} {$where['operator']} ?";
                 $values[] = $where['value'];
             }
+
+            return $this->query($query, $values)->rowCount();
         }
-        return $this->query($query, $values ?? [])->rowCount();
+        return false;
     }
 }
